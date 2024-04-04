@@ -1,4 +1,4 @@
-import {MAX_WORD_SIZE, MAX_ATTEMPTS, validLetterCodes, spanishLetterN} from "./env.js";
+import {MAX_WORD_SIZE, MAX_ATTEMPTS, validLetterCodes, spanishLetterN, codeSpanishLetterN, rightLetter, wrongLetter, misplacedLetter} from "./env.js";
 import {UIChanger} from "./UIChanger.js";
 
 export class NewGame {
@@ -54,17 +54,16 @@ export class NewGame {
         let letterType:string="";
         for(let i=0; i<MAX_WORD_SIZE; i++){
             if (this.#pickedWord[i]==this.#actualWord[i]){
-                letterType="rightLetter";
+                letterType=rightLetter;
             }else{
                 let pattern:RegExp = new RegExp(this.#actualWord[i],"g");
                 let numberOfCoincidencesPickedWord = (this.#pickedWord.match(pattern)||[]).length;
-                if (numberOfCoincidencesPickedWord==0){
-                    letterType="wrongLetter";
-                }else{
-                    letterType="misplacedLetter";
+                if (numberOfCoincidencesPickedWord != 0){
+                    letterType=misplacedLetter;
                 }
             }
             this.#userInterface.changeBackgroundPosition(this.#turn, i, letterType);
+            letterType="";
         }
     }
 
@@ -98,6 +97,7 @@ export class NewGame {
     backspacePressed(code:String):void{
         if (code=="Backspace" && this.#actualPosition > 0) {
             this.#actualPosition -= 1;
+            this.#actualWord = this.#actualWord.substring(0, this.#actualWord.length - 1);
             this.#userInterface.deleteLetter(this.#turn, this.#actualPosition);
         }
     }
@@ -106,8 +106,8 @@ export class NewGame {
         if(validLetterCodes.includes(code) && (this.#actualPosition < MAX_WORD_SIZE)){
             this.#userInterface.changeBackgroundKey(code);
             let letter: string = code.split("y")[1];
-            if (code==spanishLetterN){
-                letter = "Ñ";
+            if (code==codeSpanishLetterN){
+                letter = spanishLetterN;
             }
             this.#userInterface.setNewLetter(this.turn, this.actualPosition, letter);
             this.#actualPosition = this.#actualPosition + 1;
